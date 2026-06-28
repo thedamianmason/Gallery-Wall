@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Signing in…</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: #161514;
+      color: #EDE8DE;
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .msg { max-width: 28rem; padding: 1.5rem; line-height: 1.5; }
+    .err { color: #C77B5B; }
+    a { color: #9C7A3C; }
+  </style>
+</head>
+<body>
+  <div class="msg" id="msg">Connecting to DeviantArt…</div>
+
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+  <script>
+    (async function () {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+      const state = params.get("state");
+      const error = params.get("error");
+      const errorDescription = params.get("error_description");
+      const msg = document.getElementById("msg");
+
+      if (error) {
+        msg.innerHTML = `<span class="err">Sign-in was not completed.</span><br>${errorDescription || error}<br><br><a href="index.html">Back to the app</a>`;
+        return;
+      }
+
+      if (!code) {
+        msg.innerHTML = `<span class="err">No authorization code was returned.</span><br><br><a href="index.html">Back to the app</a>`;
+        return;
+      }
+
+      try {
+        await completeLogin(code, state);
+        window.location.href = "index.html";
+      } catch (e) {
+        msg.innerHTML = `<span class="err">${e.message}</span><br><br><a href="index.html">Back to the app</a>`;
+      }
+    })();
+  </script>
+</body>
+</html>

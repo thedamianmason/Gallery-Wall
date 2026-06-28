@@ -1,0 +1,770 @@
+/* ─────────────────────────────────────────────────────────────
+   Design tokens
+   Stage:  near-black, art is the only bright thing on screen.
+   Panel:  warm gallery paper — the one place the UI gets to speak.
+   ───────────────────────────────────────────────────────────── */
+
+:root {
+  --stage-bg: #0c0b0a;
+  --paper: #EDE8DE;
+  --paper-deep: #E2DCCD;
+  --ink: #161514;
+  --ink-soft: #3a3733;
+  --gold: #9C7A3C;          /* decorative accent only (border, icons) — not for text on paper */
+  --gold-stage: #BC9550;    /* AAA (7:1) against the dark stage — use for focus rings/text there */
+  --gold-ink: #5D4924;      /* AAA (7:1) against paper — use for any gold TEXT on paper */
+  --sage: #4A5D4E;
+  --rust: #B05A3C;
+  --border: #948356;        /* meets 3:1 non-text contrast on both white and paper */
+
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif;
+
+  --panel-width: 24rem;
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { box-sizing: border-box; }
+
+/* Keep the `hidden` attribute authoritative even on elements that set their own
+   `display` (e.g. .icon-btn uses inline-flex), so toggling `hidden` in JS works. */
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--stage-bg);
+  font-family: var(--sans);
+  overflow: hidden;
+}
+
+button { font-family: inherit; cursor: pointer; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+/* ───────────────────────── Stage ───────────────────────── */
+
+.stage {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--stage-bg);
+}
+
+.stage__backdrop {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, #161412 0%, #0c0b0a 70%);
+}
+
+.artwork {
+  position: relative;
+  max-width: 92vw;
+  max-height: 92vh;
+  object-fit: contain;
+  box-shadow: 0 2rem 6rem rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  transition: opacity 0.6s var(--ease);
+}
+
+.artwork.is-visible { opacity: 1; }
+
+.empty-state {
+  position: relative;
+  color: var(--paper);
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  text-align: center;
+  max-width: 24rem;
+  opacity: 0.75;
+}
+
+/* ───────────────────────── Quick-start (idle, signed in) ─────────────────────
+   Two preview cards flanking a settings link. Each card loads that source. */
+
+.quick-start {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: min(26rem, 90vw);
+  text-align: center;
+}
+
+.quick-start__hint {
+  margin: 1.25rem 0; /* breathing room from the cards above and below */
+  font-family: var(--serif);
+  color: var(--paper);
+  font-size: 1.05rem;
+}
+
+/* A button styled as an inline text link (opens settings). */
+.linklike {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--paper);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.linklike:hover { color: var(--gold-stage); }
+
+.quick-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  padding: 0.6rem;
+  text-align: left;
+  background: rgba(12, 11, 10, 0.55);
+  border: 1px solid rgba(237, 232, 222, 0.18);
+  border-radius: 0.5rem;
+  color: var(--paper);
+  transition: background 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+.quick-card:hover,
+.quick-card:focus-visible {
+  background: rgba(12, 11, 10, 0.8);
+  border-color: var(--gold-stage);
+}
+
+.quick-card__thumb {
+  flex: 0 0 auto;
+  width: 4.5rem;
+  height: 4.5rem;
+  object-fit: cover;
+  border-radius: 0.35rem;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.quick-card__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.quick-card__kicker {
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold-stage);
+}
+.quick-card__title {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1rem;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.quick-card__arrow {
+  flex: 0 0 auto;
+  font-size: 1.4rem;
+  color: var(--gold-stage);
+}
+
+/* ───────────────────────── Museum wall label ─────────────────────────
+   Dark glass card over the artwork. alpha is held at >=0.85 so paper-
+   colored text keeps AAA contrast (7:1+) even over a near-white painting
+   behind it — verified against the worst case, not just typical art. */
+
+/* Centered at the bottom; width is clamped to the viewport so it never spills
+   off-screen on narrow/mobile displays (the hide button now lives in the top
+   control row, so the wrap holds only the card). */
+.label-wrap {
+  position: absolute;
+  left: 50%;
+  bottom: 4.75rem; /* sits above the control row, which is anchored at the bottom */
+  transform: translateX(-50%);
+  width: min(38rem, calc(100vw - 2rem));
+  transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
+}
+
+.label-wrap.is-hidden {
+  opacity: 0;
+  transform: translateX(-50%) translateY(0.6rem);
+  pointer-events: none;
+}
+
+.label {
+  box-sizing: border-box;
+  width: 100%;
+  background: rgba(12, 11, 10, 0.85);
+  backdrop-filter: blur(6px);
+  color: var(--paper);
+  padding: 0.9rem 1.1rem 0.85rem;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 1rem;
+  border-left: 3px solid var(--gold-stage);
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.45);
+  transition: background 0.2s var(--ease);
+}
+
+/* The textual content (title, byline, medium, tags) stacks in this column so
+   the scan-to-view QR can sit beside it. */
+.label__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+/* Scan-to-view QR: stays visible even when the label minimizes mid-slide, so an
+   unattended display always offers a way to reach the piece. */
+.label__qr {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+.label__qr canvas {
+  width: 5.5rem;
+  height: 5.5rem;
+  display: block;
+  border-radius: 0.25rem;
+  background: #fff;
+  image-rendering: pixelated;
+}
+.label__qr-cap {
+  font-family: var(--sans);
+  font-size: 0.6rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--paper);
+  opacity: 0.8;
+}
+
+.label:has(.label__row:hover),
+.label:has(.label__row:focus-visible) {
+  background: rgba(12, 11, 10, 0.95);
+}
+
+.label__row {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+}
+
+.label__title {
+  /* Switchable in settings: serif (default) or sans, via the .title-sans class
+     on <html>. Italic only reads well in serif, so drop it for sans. */
+  font-family: var(--title-font, var(--serif));
+  font-size: 2rem;
+  font-style: italic;
+  line-height: 1.25;
+  overflow-wrap: break-word;
+}
+
+.title-sans { --title-font: var(--sans); }
+.title-sans .label__title { font-style: normal; }
+
+.label__hint {
+  font-family: var(--sans);
+  font-size: 1rem;
+  color: var(--paper);
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 0.2s var(--ease), max-height 0.2s var(--ease), margin-top 0.2s var(--ease);
+}
+
+.label__row:hover .label__hint,
+.label__row:focus-visible .label__hint {
+  opacity: 1;
+  max-height: 1.2rem;
+  margin-top: 0.15rem;
+}
+
+.label__byline,
+.label__medium,
+.label__meta {
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  letter-spacing: 0.01em;
+  color: var(--paper);
+  opacity: 0.85;
+  margin: 0;
+}
+
+/* The "By: <artist>" line is primary information — give it a larger size than
+   the medium/tags metadata below it. */
+.label__byline {
+  font-size: 1.05rem;
+  opacity: 0.92;
+}
+
+/* Half-way through each slide, drop everything below the title + artist so the
+   artwork gets more room. Content stays in the DOM (not display:none) so screen
+   readers can still reach it — this is a purely visual collapse. The full label
+   returns on the next slide. */
+.label.is-minimized .label__medium,
+.label.is-minimized .label__meta,
+.label.is-minimized .label__tags {
+  max-height: 0;
+  margin: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.label__medium {
+  font-style: italic;
+}
+
+.label__byline #labelArtist,
+.label__byline #labelOwner {
+  font-weight: 600;
+  opacity: 1;
+}
+
+.label__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.3rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.label__tags li {
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(237, 232, 222, 0.14);
+  color: var(--paper);
+}
+
+.label-hide-btn {
+  flex-shrink: 0;
+  /* The tag glyph is small/hard to read, so make it noticeably larger, bolder,
+     and more opaque than the neighbouring control icons. */
+  font-size: 1.9rem;
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+/* ───────────────────────── Stage controls ───────────────────────── */
+
+/* Prev/next arrows share the bottom control row's look: a dark, opaque circle
+   with a bright glyph, always visible for discoverability over any artwork. */
+.nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 50%;
+  border: none;
+  background: rgba(8, 7, 6, 0.62);
+  color: #fff;
+  font-size: 1.7rem;
+  line-height: 1;
+  opacity: 0.9;
+  transition: opacity 0.25s var(--ease), background 0.2s var(--ease);
+}
+
+.nav:hover,
+.nav:focus-visible {
+  opacity: 1;
+  background: rgba(8, 7, 6, 0.82);
+}
+.nav--prev { left: 1.5rem; }
+.nav--next { right: 1.5rem; }
+
+.icon-btn {
+  /* inline-flex so the same class sizes/centres both <button> and <a> controls */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border: none;
+  background: rgba(20, 18, 16, 0.35);
+  color: var(--paper);
+  /* 2.75rem = 44px: meets WCAG 2.5.8 AAA target size (AA floor is 24px). */
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  opacity: 0.55;
+  transition: opacity 0.2s var(--ease), background 0.2s var(--ease);
+}
+
+.icon-btn:hover,
+.icon-btn:focus-visible {
+  opacity: 1;
+  background: rgba(20, 18, 16, 0.6);
+}
+
+/* Active/toggled state: the label-hide button while the label is hidden, and
+   the play/pause button while paused (both set aria-pressed="true"). Filled
+   with paper so it reads clearly as "on" against the dark stage. */
+.icon-btn[aria-pressed="true"] {
+  opacity: 1;
+  background: var(--paper);
+  color: var(--ink);
+}
+.icon-btn[aria-pressed="true"]:hover,
+.icon-btn[aria-pressed="true"]:focus-visible {
+  background: var(--paper-deep);
+}
+
+/* ───────────────────────── Canvas tap play/pause indicator ─────────────────
+   A transparent duplicate of the play/pause glyph that pops in the centre of
+   the stage and fades out when the artwork is tapped. Decorative only. */
+
+.tap-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.6rem;
+  color: var(--paper);
+  background: rgba(12, 11, 10, 0.5);
+  transform: translate(-50%, -50%) scale(0.6);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 6;
+}
+
+.tap-indicator.is-active {
+  animation: tap-pop 0.6s var(--ease) forwards;
+}
+
+@keyframes tap-pop {
+  0%   { opacity: 0;   transform: translate(-50%, -50%) scale(0.6); }
+  30%  { opacity: 0.9; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0;   transform: translate(-50%, -50%) scale(1.35); }
+}
+
+.stage-controls {
+  position: absolute;
+  bottom: 1.25rem; /* under the museum label */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* The bottom control row floats over artwork that may be light, so give the
+   idle (non-pressed) buttons a darker, more opaque circle and a brighter glyph
+   than the default icon button. The pressed/active fill is left untouched. */
+.stage-controls .icon-btn:not([aria-pressed="true"]) {
+  background: rgba(8, 7, 6, 0.62);
+  color: #fff;
+  opacity: 0.92;
+}
+.stage-controls .icon-btn:not([aria-pressed="true"]):hover,
+.stage-controls .icon-btn:not([aria-pressed="true"]):focus-visible {
+  background: rgba(8, 7, 6, 0.82);
+  opacity: 1;
+}
+
+.nav:focus-visible,
+#settingsToggle:focus-visible,
+#stagePlayPauseBtn:focus-visible,
+#viewOnDaBtn:focus-visible,
+#labelHideBtn:focus-visible,
+.label__row:focus-visible {
+  outline: 3px solid var(--gold-stage);
+  outline-offset: 2px;
+}
+
+.btn:focus-visible,
+.icon-btn:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--gold-ink);
+  outline-offset: 2px;
+}
+
+/* Buttons that sit on the dark stage need the lighter gold ring to keep a
+   visible 3:1 focus indicator (WCAG 2.4.7 / 1.4.11) — the darker gold-ink ring
+   would all but vanish against near-black. Declared after the rule above so it
+   wins for .quick-login-btn (which also matches .btn:focus-visible). */
+.linklike:focus-visible,
+.quick-login-btn:focus-visible {
+  outline: 3px solid var(--gold-stage);
+  outline-offset: 2px;
+}
+
+/* ───────────────────────── Settings panel ───────────────────────── */
+
+.panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: var(--panel-width);
+  max-width: 92vw;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: -1rem 0 3rem rgba(0, 0, 0, 0.35);
+  transform: translateX(100%);
+  transition: transform 0.35s var(--ease);
+  overflow-y: auto;
+  font-family: var(--sans);
+}
+
+.panel.is-open { transform: translateX(0); }
+
+.panel__inner { padding: 1.5rem 1.5rem 3rem; }
+
+.panel__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.panel__header h1 {
+  /* Follows the artwork title-font setting (serif default / sans). */
+  font-family: var(--title-font, var(--serif));
+  font-style: italic;
+  font-size: 1.5rem;
+  margin: 0;
+}
+.title-sans .panel__header h1 { font-style: normal; }
+
+.panel__header .icon-btn {
+  background: transparent;
+  color: var(--ink);
+  opacity: 0.75;
+}
+.panel__header .icon-btn:hover,
+.panel__header .icon-btn:focus-visible {
+  background: rgba(22, 21, 20, 0.08);
+  opacity: 1;
+}
+
+.panel__section {
+  border-top: 1px solid var(--paper-deep);
+  padding: 1.25rem 0;
+}
+.panel__section:first-of-type { border-top: none; padding-top: 0; }
+
+.panel__section h2 {
+  font-family: var(--sans);
+  font-size: 0.86rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink); /* darkened from gold for clearer contrast on the paper panel */
+  font-weight: 700;
+  margin: 0 0 0.85rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  margin-bottom: 0.85rem;
+}
+
+.field > span { color: var(--ink-soft); font-size: 0.78rem; }
+
+.field--row {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.6rem;
+}
+.field--row > span { font-size: 0.85rem; color: var(--ink); }
+
+input[type="text"],
+input[type="number"],
+input[type="date"],
+select {
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--ink);
+  border-radius: 0.25rem;
+}
+
+input[type="checkbox"] {
+  width: 1.5rem;
+  height: 1.5rem;
+  accent-color: var(--gold-ink);
+  flex-shrink: 0;
+}
+
+/* Touch-friendly number stepper: big −/+ buttons flanking the field, with the
+   tiny native spinners removed. */
+.stepper {
+  display: flex;
+  align-items: stretch;
+  gap: 0.4rem;
+}
+.stepper__btn {
+  flex: 0 0 auto;
+  width: 3rem;
+  min-height: 2.75rem; /* ≥44px touch target (WCAG 2.5.5) */
+  font-size: 1.4rem;
+  line-height: 1;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--ink);
+  border-radius: 0.25rem;
+}
+.stepper__btn:hover { background: var(--paper); }
+.stepper__btn:active { background: var(--paper-deep); }
+.stepper input[type="number"] {
+  flex: 1 1 auto;
+  width: 100%;
+  text-align: center;
+  font-size: 1.05rem;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.stepper input[type="number"]::-webkit-outer-spin-button,
+.stepper input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.date-range {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.date-range input[type="date"] { flex: 1 1 auto; min-width: 0; }
+.date-range > span { color: var(--ink-soft); }
+
+.btn {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 0.65rem 1rem;
+  border: none;
+  border-radius: 0.3rem;
+  background: var(--ink);
+  color: var(--paper);
+  width: 100%;
+  margin-top: 0.25rem;
+  transition: background 0.2s var(--ease);
+}
+.btn:hover { background: var(--ink-soft); }
+
+.btn--ghost {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--border);
+}
+.btn--ghost:hover { background: rgba(0,0,0,0.05); }
+
+/* For ghost buttons that sit on the dark stage (e.g. the mature-content
+   gate) rather than the paper panel — needs light text/border instead. */
+.btn--ghost-stage {
+  background: transparent;
+  color: var(--paper);
+  border: 1px solid var(--paper);
+  width: auto;
+  padding: 0.65rem 1.25rem;
+}
+.btn--ghost-stage:hover { background: rgba(237, 232, 222, 0.12); }
+
+/* Prominent sign-in CTA shown on the signed-out landing. White card with dark
+   text so it reads clearly against the near-black stage. Must come after .btn
+   so it overrides the dark-background default. */
+.quick-login-btn {
+  background: #fff !important;
+  color: var(--ink) !important;
+  margin: 0;
+}
+.quick-login-btn:hover { background: #e9e4da !important; }
+
+.muted { color: var(--ink-soft); font-size: 0.92rem; margin: 0.4rem 0; }
+.muted.small { font-size: 0.82rem; line-height: 1.45; }
+
+.panel__footer {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(22, 21, 20, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+}
+.panel__repo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 600;
+}
+.panel__repo:hover { color: var(--gold-ink); }
+
+/* Share buttons wrap into a compact grid; the network links are auto-width
+   ghost buttons rather than the full-width default. */
+.share-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+.share-links .btn {
+  width: auto;
+  margin-top: 0;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.8rem;
+}
+.share-links [aria-disabled="true"] {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* ───────────────────────── Small screens ───────────────────────── */
+
+@media (max-width: 480px) {
+  /* Keep the base centering (left:50% + translateX(-50%)); only adjust spacing
+     and width so the card never runs off-screen. */
+  .label-wrap { bottom: 4rem; width: calc(100vw - 1.5rem); }
+  .stage-controls { bottom: 0.75rem; }
+  .label { padding: 0.75rem 0.9rem 0.7rem; }
+  .label__title { font-size: 1rem; }
+  .label__byline { font-size: 0.85rem; }
+  /* On a phone the viewer is already on the device — the QR is for unattended
+     big screens, so reclaim the space. */
+  .label__qr { display: none; }
+  /* Keep nav arrows at the 44px AAA touch target on phones, where touch is the
+     primary input. */
+  .nav { width: 2.75rem; height: 2.75rem; font-size: 1.4rem; }
+  .tap-indicator { width: 4.5rem; height: 4.5rem; font-size: 2.1rem; }
+}

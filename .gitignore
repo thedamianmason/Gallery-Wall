@@ -1,0 +1,16 @@
+# Secrets / local env — never commit these
+.env
+.env.*
+
+# Netlify
+.netlify/
+
+# Dependencies (only if you later add a build/packaging step)
+node_modules/
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/

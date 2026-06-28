@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Gallery Wall — DeviantArt Slideshow</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0c0b0a" />
+<meta name="description" content="A fullscreen, museum-style slideshow for DeviantArt artwork." />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="icon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="icon.svg" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Gallery Wall" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ───────────────────────── Slideshow stage ───────────────────────── -->
+  <main id="stage" class="stage" aria-label="Slideshow">
+    <div class="stage__backdrop" id="backdrop"></div>
+
+    <img id="artwork" class="artwork" alt="" />
+
+    <!-- Museum wall label: dark glass card, dismissible, re-appears each new slide -->
+    <div id="labelWrap" class="label-wrap">
+      <div id="label" class="label">
+        <div class="label__body">
+          <a id="labelLink" class="label__row" href="#" target="_blank" rel="noopener">
+            <span class="label__title" id="labelTitle">Title</span>
+            <span class="label__hint">View on DeviantArt ↗</span>
+            <span class="visually-hidden"> (opens in a new tab)</span>
+          </a>
+          <p class="label__byline">
+            By <span id="labelArtist">artist</span><span id="labelOwnerWrap" hidden> · Owned by <span id="labelOwner"></span></span>
+          </p>
+          <p class="label__medium" id="labelMediumWrap" hidden>
+            <span id="labelMedium"></span><span id="labelResolutionWrap" hidden><span aria-hidden="true"> · </span><span id="labelResolution"></span></span>
+          </p>
+          <ul id="labelTags" class="label__tags" aria-label="Tags" hidden></ul>
+        </div>
+        <!-- Scan-to-view QR so unattended displays can hand viewers the link -->
+        <div class="label__qr" id="labelQr" hidden>
+          <canvas id="labelQrCanvas" width="0" height="0" aria-hidden="true"></canvas>
+          <span class="label__qr-cap" aria-hidden="true">Scan to view</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Briefly flashes a play/pause glyph in the centre when the canvas is tapped -->
+    <div id="canvasTapIndicator" class="tap-indicator" aria-hidden="true"></div>
+
+    <p id="slideAnnouncer" class="visually-hidden" role="status" aria-live="polite"></p>
+
+    <button id="prevBtn" class="nav nav--prev" aria-label="Previous artwork"><span aria-hidden="true">‹</span></button>
+    <button id="nextBtn" class="nav nav--next" aria-label="Next artwork"><span aria-hidden="true">›</span></button>
+
+    <div class="stage-controls">
+      <button id="labelHideBtn" class="icon-btn label-hide-btn" aria-label="Hide label" aria-pressed="false"><span aria-hidden="true">🏷</span></button>
+      <a id="viewOnDaBtn" class="icon-btn" href="#" target="_blank" rel="noopener" aria-label="View this artwork on DeviantArt (opens in a new tab)" title="View on DeviantArt" hidden><span aria-hidden="true">↗</span></a>
+      <button id="stagePlayPauseBtn" class="icon-btn" aria-label="Pause slideshow" aria-pressed="false"><span aria-hidden="true">⏸</span></button>
+      <button id="settingsToggle" class="icon-btn" aria-label="Open settings" aria-expanded="false" aria-controls="panel"><span aria-hidden="true">⚙</span></button>
+    </div>
+
+    <div class="empty-state" id="emptyState" hidden role="status">
+      <p id="emptyStateMessage">Nothing to show yet.</p>
+    </div>
+
+    <!-- Quick-start: shown when signed in but idle. Two preview cards (each
+         loads that source) flank a link that opens the settings panel. -->
+    <div class="quick-start" id="quickStart" hidden>
+      <button class="quick-card" id="qsDailyCard" type="button" hidden>
+        <img class="quick-card__thumb" id="qsDailyThumb" alt="" />
+        <span class="quick-card__text">
+          <span class="quick-card__kicker">Daily Deviations</span>
+          <span class="quick-card__title" id="qsDailyTitle"></span>
+        </span>
+        <span class="quick-card__arrow" aria-hidden="true">→</span>
+      </button>
+
+      <p class="quick-start__hint">
+        <button type="button" id="qsSettingsLink" class="linklike">Open settings to choose what to display.</button>
+      </p>
+
+      <button class="quick-card" id="qsWatchCard" type="button" hidden>
+        <img class="quick-card__thumb" id="qsWatchThumb" alt="" />
+        <span class="quick-card__text">
+          <span class="quick-card__kicker">Deviants you watch</span>
+          <span class="quick-card__title" id="qsWatchTitle"></span>
+        </span>
+        <span class="quick-card__arrow" aria-hidden="true">→</span>
+      </button>
+
+      <!-- Shown instead of the watch card when signed out -->
+      <button class="btn quick-login-btn" id="qsLoginBtn" type="button" hidden>Sign in with DeviantArt</button>
+    </div>
+  </main>
+
+  <!-- ───────────────────────── Settings panel ───────────────────────── -->
+  <aside id="panel" class="panel" role="dialog" aria-modal="true" aria-labelledby="panelTitle" tabindex="-1" hidden>
+    <div class="panel__inner">
+
+      <header class="panel__header">
+        <h1 id="panelTitle">Gallery Wall</h1>
+        <button id="panelClose" class="icon-btn" aria-label="Close settings"><span aria-hidden="true">✕</span></button>
+      </header>
+
+      <section class="panel__section" id="authSection">
+        <h2>Connection</h2>
+        <p id="authStatus" class="muted" role="status">Checking sign-in status…</p>
+        <button id="signInBtn" class="btn">Sign in with DeviantArt</button>
+        <button id="signOutBtn" class="btn btn--ghost" hidden>Sign out</button>
+      </section>
+
+      <section class="panel__section">
+        <h2>Source</h2>
+
+        <label class="field">
+          <span>Browse by</span>
+          <select id="sourceType">
+            <option value="tag">Tag / topic</option>
+            <option value="userFavouritesAll">My Favourites (all)</option>
+            <option value="dailyDeviations">Daily Deviations</option>
+            <option value="deviantsYouWatch">Deviants you watch</option>
+            <option value="homepage">Homepage (curated picks)</option>
+            <option value="userGalleryAll">A user's full gallery</option>
+            <option value="userGalleryFolder">A user's gallery folder</option>
+            <option value="userCollectionFolder">A user's collection (favourites) folder</option>
+          </select>
+        </label>
+
+        <label class="field" id="tagField">
+          <span>Tag</span>
+          <input id="tagInput" type="text" list="tagHistory" autocomplete="off" placeholder="e.g. landscape, watercolor, cyberpunk" />
+          <datalist id="tagHistory"></datalist>
+        </label>
+
+        <label class="field" id="usernameField" hidden>
+          <span>Username</span>
+          <input id="usernameInput" type="text" list="usernameHistory" autocomplete="off" placeholder="hq, etheringtonbrothers, etc." />
+          <datalist id="usernameHistory"></datalist>
+        </label>
+
+        <label class="field" id="folderField" hidden>
+          <span>Folder</span>
+          <select id="folderSelect">
+            <option value="">Load a username first…</option>
+          </select>
+        </label>
+
+        <div class="field" id="dailyDateField" hidden>
+          <span id="dailyDateLabel">Date range (optional — leave blank for today)</span>
+          <div class="date-range" role="group" aria-labelledby="dailyDateLabel">
+            <input id="dailyDateFrom" type="date" aria-label="From date" />
+            <span aria-hidden="true">–</span>
+            <input id="dailyDateTo" type="date" aria-label="To date" />
+          </div>
+        </div>
+
+        <p class="muted small" id="deviantsYouWatchNote" hidden>
+          Shows recent art from artists your signed-in DeviantArt account watches.
+          If your account doesn't watch anyone yet, this will come back empty.
+        </p>
+
+        <button id="loadBtn" class="btn">Load artwork</button>
+        <p id="sourceStatus" class="muted" role="status"></p>
+      </section>
+
+      <section class="panel__section">
+        <h2>Playback</h2>
+
+        <div class="field">
+          <span id="speedLabel">Seconds per slide</span>
+          <div class="stepper">
+            <button type="button" class="stepper__btn" id="speedDown" aria-label="Fewer seconds per slide">−</button>
+            <input id="speedInput" type="number" min="2" max="120" value="12" inputmode="numeric" aria-labelledby="speedLabel" />
+            <button type="button" class="stepper__btn" id="speedUp" aria-label="More seconds per slide">+</button>
+          </div>
+        </div>
+
+        <label class="field field--row">
+          <input id="shuffleToggle" type="checkbox" />
+          <span>Shuffle order</span>
+        </label>
+
+        <label class="field field--row">
+          <input id="matureToggle" type="checkbox" />
+          <span>Allow mature content</span>
+        </label>
+        <p class="muted small">
+          <strong>Unchecked (Off):</strong> mature-flagged pieces are skipped
+          entirely.<br />
+          <strong>Checked (On):</strong> they're shown inline — but only if your
+          DeviantArt account itself allows mature content (set on deviantart.com
+          under Settings → Browsing).
+        </p>
+
+        <label class="field field--row">
+          <input id="aiToggle" type="checkbox" />
+          <span>Hide AI-generated art</span>
+        </label>
+        <p class="muted small">
+          Filters out pieces DeviantArt flags as AI-generated. This relies on the
+          artist's AI label, so it may not catch everything.
+        </p>
+
+        <label class="field field--row">
+          <input id="canvasPauseToggle" type="checkbox" checked />
+          <span>Tap the artwork to pause / play</span>
+        </label>
+
+        <label class="field field--row">
+          <input id="qrToggle" type="checkbox" checked />
+          <span>Show scan-to-view QR code on the label</span>
+        </label>
+
+        <label class="field">
+          <span>Artwork title font</span>
+          <select id="titleFontSelect">
+            <option value="serif">Serif</option>
+            <option value="sans">Sans-serif</option>
+          </select>
+        </label>
+
+        <button id="playPauseBtn" class="btn">Pause slideshow</button>
+      </section>
+
+      <section class="panel__section" id="shareSection">
+        <h2>Share current artwork</h2>
+        <div id="shareLinks" class="share-links">
+          <button class="btn btn--ghost" type="button" data-net="copy" disabled>Copy link</button>
+          <button class="btn btn--ghost" type="button" data-net="device" id="shareDeviceBtn" aria-label="Open your device's share sheet" disabled hidden>Device share…</button>
+          <button class="btn btn--ghost" type="button" data-net="bluesky" disabled>Bluesky</button>
+          <button class="btn btn--ghost" type="button" data-net="reddit" disabled>Reddit</button>
+          <button class="btn btn--ghost" type="button" data-net="mastodon" disabled>Mastodon</button>
+          <button class="btn btn--ghost" type="button" data-net="signal" disabled>Signal</button>
+          <button class="btn btn--ghost" type="button" data-net="tumblr" disabled>Tumblr</button>
+          <button class="btn btn--ghost" type="button" data-net="pinterest" disabled>Pinterest</button>
+          <button class="btn btn--ghost" type="button" data-net="threads" disabled>Threads</button>
+          <button class="btn btn--ghost" type="button" data-net="instagram" disabled>Instagram</button>
+          <button class="btn btn--ghost" type="button" data-net="whatsapp" disabled>WhatsApp</button>
+          <button class="btn btn--ghost" type="button" data-net="wechat" disabled>WeChat</button>
+        </div>
+        <p id="shareStatus" class="muted small" role="status"></p>
+      </section>
+
+      <footer class="panel__footer">
+        <span>Damian Mason &amp; Sapient Technologies</span>
+        <a class="panel__repo" href="https://github.com/thedamianmason/Gallery-Wall"
+           target="_blank" rel="noopener" aria-label="View the source on GitHub (opens in a new tab)">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true" focusable="false">
+            <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+          </svg>
+          <span>GitHub</span>
+        </a>
+      </footer>
+
+    </div>
+  </aside>
+
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+  <script src="api.js"></script>
+  <script src="qrcode.js"></script>
+  <script src="app.js"></script>
+  <script>
+    // Register the PWA service worker (no-op where unsupported).
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+# Netlify config — hosts BOTH the static slideshow and the CORS helper.
+#
+# The site (index.html, app.js, callback.html, …) is served straight from the
+# repo root. The function in netlify/functions/proxy.mjs handles two paths
+# (bound via `export const config` inside it):
+#   POST /token              and   GET /api/v1/oauth2/*
+# Because the app and the function now share one origin, those API/token calls
+# are same-origin — the proxy still re-emits DeviantArt's responses, it just no
+# longer needs cross-origin CORS for the app itself.
+#
+# Deploy: connect this repo in the Netlify dashboard (no build command needed),
+# or run `npx netlify deploy --prod` from the repo root.
+
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+# Optional: override the allow-listed origins without touching code. The
+# function also has a sensible built-in default, so this is not required.
+# [build.environment]
+#   ALLOWED_ORIGINS = "https://deviantartmuseumdisplay.netlify.app,http://localhost:8000"

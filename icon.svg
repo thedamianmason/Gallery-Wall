@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Gallery Wall">
+  <rect width="512" height="512" rx="104" fill="#161514"/>
+  <!-- framed artwork, kept within the central ~70% for maskable safe zone -->
+  <rect x="128" y="112" width="256" height="288" rx="6" fill="#0c0b0a" stroke="#BC9550" stroke-width="14"/>
+  <clipPath id="art"><rect x="149" y="133" width="214" height="246" rx="2"/></clipPath>
+  <g clip-path="url(#art)">
+    <rect x="149" y="133" width="214" height="246" fill="#4A5D4E"/>
+    <circle cx="305" cy="196" r="30" fill="#E2DCCD"/>
+    <path d="M149 330 L205 268 L258 312 L312 256 L363 300 L363 379 L149 379 Z" fill="#161514" opacity="0.55"/>
+    <path d="M149 360 L196 322 L243 352 L300 312 L363 350 L363 379 L149 379 Z" fill="#0c0b0a" opacity="0.6"/>
+  </g>
+</svg>
