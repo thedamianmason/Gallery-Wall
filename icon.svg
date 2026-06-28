@@ -1,12 +1,47 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Gallery Wall">
-  <rect width="512" height="512" rx="104" fill="#161514"/>
-  <!-- framed artwork, kept within the central ~70% for maskable safe zone -->
-  <rect x="128" y="112" width="256" height="288" rx="6" fill="#0c0b0a" stroke="#BC9550" stroke-width="14"/>
-  <clipPath id="art"><rect x="149" y="133" width="214" height="246" rx="2"/></clipPath>
-  <g clip-path="url(#art)">
-    <rect x="149" y="133" width="214" height="246" fill="#4A5D4E"/>
-    <circle cx="305" cy="196" r="30" fill="#E2DCCD"/>
-    <path d="M149 330 L205 268 L258 312 L312 256 L363 300 L363 379 L149 379 Z" fill="#161514" opacity="0.55"/>
-    <path d="M149 360 L196 322 L243 352 L300 312 L363 350 L363 379 L149 379 Z" fill="#0c0b0a" opacity="0.6"/>
-  </g>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;">
+    <path d="M512,104L512,408C512,465.399 465.399,512 408,512L104,512C46.601,512 0,465.399 0,408L0,104C0,46.601 46.601,0 104,0L408,0C465.399,0 512,46.601 512,104Z" style="fill:rgb(22,21,20);"/>
+    <path d="M384,118L384,394C384,397.311 381.311,400 378,400L134,400C130.689,400 128,397.311 128,394L128,118C128,114.689 130.689,112 134,112L378,112C381.311,112 384,114.689 384,118Z" style="fill:rgb(12,11,10);stroke:rgb(188,149,80);stroke-width:14px;"/>
+    <g>
+        <clipPath id="_clip1">
+            <path d="M363,135L363,377C363,378.104 362.104,379 361,379L151,379C149.896,379 149,378.104 149,377L149,135C149,133.896 149.896,133 151,133L361,133C362.104,133 363,133.896 363,135Z"/>
+        </clipPath>
+        <g clip-path="url(#_clip1)">
+            <rect x="149" y="133" width="214" height="246" style="fill:rgb(74,93,78);"/>
+            <circle cx="305" cy="196" r="30" style="fill:rgb(226,220,205);"/>
+            <path d="M149,330L205,268L258,312L312,256L363,300L363,379L149,379L149,330Z" style="fill:rgb(22,21,20);fill-opacity:0.55;fill-rule:nonzero;"/>
+            <path d="M149,360L196,322L243,352L300,312L363,350L363,379L149,379L149,360Z" style="fill:rgb(12,11,10);fill-opacity:0.6;fill-rule:nonzero;"/>
+        </g>
+    </g>
+    <g id="Layer1" transform="matrix(1,0,0,1,0,38.905304)">
+        <path d="M405.39,361.47L405.39,380.467C405.39,385.709 401.134,389.965 395.892,389.965L115.196,389.965C109.954,389.965 105.698,385.709 105.698,380.467L105.698,361.47C105.698,356.228 109.954,351.972 115.196,351.972L395.892,351.972C401.134,351.972 405.39,356.228 405.39,361.47Z" style="fill-opacity:0.8;"/>
+        <g transform="matrix(0,1,-1,0,630.311672,115.880099)">
+            <path d="M255.088,362.306L267.094,386.318L243.082,386.318L255.088,362.306Z" style="fill:rgb(235,222,199);"/>
+        </g>
+        <g transform="matrix(0.716397,0,0,0.716397,74.852496,104.453606)">
+            <circle cx="199.91" cy="372.021" r="6.979" style="fill:rgb(235,222,199);"/>
+        </g>
+        <g transform="matrix(0.716397,0,0,0.716397,44.852496,104.453606)">
+            <circle cx="199.91" cy="372.021" r="6.979" style="fill:rgb(235,222,199);fill-opacity:0.6;"/>
+        </g>
+        <g transform="matrix(0.716397,0,0,0.716397,14.852496,104.453606)">
+            <circle cx="199.91" cy="372.021" r="6.979" style="fill:rgb(235,222,199);fill-opacity:0.4;"/>
+        </g>
+        <g transform="matrix(0.716397,0,0,0.716397,209.805301,104.453606)">
+            <circle cx="199.91" cy="372.021" r="6.979" style="fill:rgb(235,222,199);fill-opacity:0.4;"/>
+        </g>
+        <g transform="matrix(0.716397,0,0,0.716397,179.805301,104.453606)">
+            <circle cx="199.91" cy="372.021" r="6.979" style="fill:rgb(235,222,199);fill-opacity:0.6;"/>
+        </g>
+        <g transform="matrix(0.716397,0,0,0.716397,149.805301,104.453606)">
+            <circle cx="199.91" cy="372.021" r="6.979" style="fill:rgb(235,222,199);"/>
+        </g>
+        <g transform="matrix(0.417393,0,0,1.252178,253.416024,-205.52402)">
+            <path d="M288.37,462.488L288.37,466.381L288.37,454.402L288.37,458.295L318.318,458.295L318.318,454.402L336.287,460.391L318.318,466.381L318.318,462.488L288.37,462.488Z" style="fill:white;"/>
+        </g>
+        <g transform="matrix(-0.417393,-0,0,-1.252178,257.611608,947.46049)">
+            <path d="M288.37,462.488L288.37,466.381L288.37,454.402L288.37,458.295L318.318,458.295L318.318,454.402L336.287,460.391L318.318,466.381L318.318,462.488L288.37,462.488Z" style="fill:white;"/>
+        </g>
+    </g>
 </svg>
