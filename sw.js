@@ -4,7 +4,7 @@
 // requests and cross-origin requests (DeviantArt images, the proxy) are never
 // cached — they always go straight to the network.
 
-const CACHE = "gallery-wall-v2";
+const CACHE = "gallery-wall-v3";
 const SHELL = [
   "./",
   "./index.html",
@@ -17,6 +17,10 @@ const SHELL = [
   "./callback.html",
   "./manifest.webmanifest",
   "./icon.svg",
+  "./icon-192.png",
+  "./icon-512.png",
+  "./icon-192-maskable.png",
+  "./icon-512-maskable.png",
 ];
 
 self.addEventListener("install", (e) => {
