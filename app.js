@@ -126,7 +126,7 @@
   }
 
   function applySettingsToForm() {
-    els.sourceType.value = settings.sourceType || "tag";
+    els.sourceType.value = settings.sourceType || "dailyDeviations";
     els.tagInput.value = settings.tag || "";
     els.usernameInput.value = settings.username || "";
     els.dailyDateFrom.value = settings.dailyDateFrom || "";
