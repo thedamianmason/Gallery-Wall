@@ -1,4 +1,4 @@
-// Service worker for the DisplayArt PWA.
+// Service worker for the DisplayingArt PWA.
 // Strategy: network-first for the same-origin app shell (so updates land
 // immediately when online), falling back to cache when offline. API/token
 // requests and cross-origin requests (DeviantArt images, the proxy) are never
